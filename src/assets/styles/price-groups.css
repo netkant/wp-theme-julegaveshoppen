@@ -1,12 +1,18 @@
 .price-groups-options {
     display: grid;
-    grid-template-columns: 1fr 1fr;
+    grid-template-columns: 1fr;
     gap: 12px;
 }
 
-@media (max-width: 1114px) {
+@media (min-width: 992px) {
     .price-groups-options {
-        grid-template-columns: 1fr;
+        grid-template-columns: 1fr 1fr;
+    }
+}
+
+@media (min-width: 1280px) {
+    .price-groups-options {
+        grid-template-columns: 1fr 1fr 1fr;
     }
 }
 
@@ -25,11 +31,18 @@
     justify-content: space-between;
     height: 100%;
 }
+.price-group-option::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background-color: rgba(0, 0, 0, 0.2);
+}
 
 .price-group-option-name {
     font-size: 32px;
     font-weight: 600;
-    margin: 0 0 24px 0 !important;
+    margin: 0 !important;
+    position: relative;
 }
 
 .price-group-option.selected {

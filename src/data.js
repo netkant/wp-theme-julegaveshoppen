@@ -12,8 +12,8 @@ export const steps = [
     },
     {
         id: 2,
-        name: jgVars.steps && jgVars.steps[1].name ? jgVars.steps[1].name : "Vælg gavekort-leveringsmetode",
-        description: jgVars.steps && jgVars.steps[1].description ? jgVars.steps[1].description : "Vælg den leveringsmetode, du ønsker at bruge til at levere gavekortene.",
+        name: jgVars.steps && jgVars.steps[1].name ? jgVars.steps[1].name : "Vælg gavekode-leveringsmetode",
+        description: jgVars.steps && jgVars.steps[1].description ? jgVars.steps[1].description : "Vælg den leveringsmetode, du ønsker at bruge til at levere gavekoderne.",
     },
     {
         id: 3,

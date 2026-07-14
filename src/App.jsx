@@ -83,12 +83,12 @@ function App() {
         if (targetStep <= currentStep) {
             return true;
         }
-        for (let stepId = currentStep; stepId < targetStep; stepId++) {
-            if (!canAdvanceFromStep[stepId]) {
-                return false;
-            }
-        }
-        return true;
+        // for (let stepId = currentStep; stepId < targetStep; stepId++) {
+        //     if (!canAdvanceFromStep[stepId]) {
+        //         return false;
+        //     }
+        // }
+        return false;
     };
 
     const handleNextClick = () => {
@@ -115,8 +115,11 @@ function App() {
         return (
             <div className="wizard-page">
                 <div className="confirmation">
-                    <h1>Tak for at bestille en butik</h1>
-                    <button onClick={handleOrderMoreClick}>Bestil mere</button>
+                    <h1>{jgVars.confirmationHeader || "Tak!"}</h1>
+                    {jgVars.confirmationMessage && jgVars.confirmationMessage.length > 0 && (
+                        <div dangerouslySetInnerHTML={{ __html: jgVars.confirmationMessage }}></div>
+                    )}
+                    <button onClick={handleOrderMoreClick}>{jgVars.confirmationButtonText || "Bestil mere"}</button>
                 </div>
             </div>
         );
@@ -368,7 +371,7 @@ function Step1({ step }) {
                                     target="_blank"
                                     onClick={(e) => e.stopPropagation()}
                                 >
-                                    Se udvalg
+                                    Se gaverne
                                 </a>
                             </div>
                         </div>
@@ -431,7 +434,7 @@ function Step3({ step }) {
                                 <CheckMark />
                             </div>
                         )}
-                        <p className="delivery-date-week">Uge: {deliverydate.week_number}</p>
+                        <p className="delivery-date-week">Uge {deliverydate.week_number}</p>
                         <p className="delivery-date-order-date">
                             Seneste bestilling:
                             <span>{deliverydate.order_date}</span>
@@ -622,7 +625,7 @@ function Step5({ step }) {
                 <tbody>
                     {rows.map((row) => (
                         <tr key={row.id}>
-                            <td>Gavekort {row.name}</td>
+                            <td>Gavekode {row.name}</td>
                             <td>{row.quantity}</td>
                             <td>{formatPrice(row.unitValue)}</td>
                             <td>{formatPrice(row.lineTotal)}</td>
@@ -630,7 +633,7 @@ function Step5({ step }) {
                     ))}
                     {selectedDeliveryMethod && (
                         <tr>
-                            <td>Gavekortlevering — {selectedDeliveryMethod.name}</td>
+                            <td>Gavekodelevering — {selectedDeliveryMethod.name}</td>
                             <td>{totalCards > 0 ? totalCards : "—"}</td>
                             <td>{formatPrice(selectedDeliveryMethod?.price)}</td>
                             <td>{formatPrice(getDeliveryTotal(totalCards))}</td>
