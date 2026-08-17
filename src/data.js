@@ -12,23 +12,28 @@ export const steps = [
     },
     {
         id: 2,
-        name: jgVars.steps && jgVars.steps[1].name ? jgVars.steps[1].name : "Vælg gavekode-leveringsmetode",
-        description: jgVars.steps && jgVars.steps[1].description ? jgVars.steps[1].description : "Vælg den leveringsmetode, du ønsker at bruge til at levere gavekoderne.",
+        name: jgVars.steps && jgVars.steps[1].name ? jgVars.steps[1].name : "Vælg gaveindpakning",
+        description: jgVars.steps && jgVars.steps[1].description ? jgVars.steps[1].description : "Vælg den gaveindpakning, du ønsker at bruge til at levere gaverne.",
     },
     {
         id: 3,
-        name: jgVars.steps && jgVars.steps[2].name ? jgVars.steps[2].name : "Vælg gave-leveringstidspunkt",
-        description: jgVars.steps && jgVars.steps[2].description ? jgVars.steps[2].description : "Vælg det tidspunkt, du ønsker at gaverne leveres.",
+        name: jgVars.steps && jgVars.steps[2].name ? jgVars.steps[2].name : "Vælg gavekode-leveringsmetode",
+        description: jgVars.steps && jgVars.steps[2].description ? jgVars.steps[2].description : "Vælg den leveringsmetode, du ønsker at bruge til at levere gavekoderne.",
     },
     {
         id: 4,
-        name: jgVars.steps && jgVars.steps[3].name ? jgVars.steps[3].name : "Angiv dine kontaktoplysninger",
-        description: jgVars.steps && jgVars.steps[3].description ? jgVars.steps[3].description : "Angiv dine kontaktoplysninger for at kunne bestille gaverne.",
+        name: jgVars.steps && jgVars.steps[3].name ? jgVars.steps[3].name : "Vælg gave-leveringstidspunkt",
+        description: jgVars.steps && jgVars.steps[3].description ? jgVars.steps[3].description : "Vælg det tidspunkt, du ønsker at gaverne leveres.",
     },
     {
         id: 5,
-        name: jgVars.steps && jgVars.steps[4].name ? jgVars.steps[4].name : "Oversigt og bestilling",
-        description: jgVars.steps && jgVars.steps[4].description ? jgVars.steps[4].description : "Oversigt og bestilling af gaverne.",
+        name: jgVars.steps && jgVars.steps[4].name ? jgVars.steps[4].name : "Angiv dine kontaktoplysninger",
+        description: jgVars.steps && jgVars.steps[4].description ? jgVars.steps[4].description : "Angiv dine kontaktoplysninger for at kunne bestille gaverne.",
+    },
+    {
+        id: 6,
+        name: jgVars.steps && jgVars.steps[5].name ? jgVars.steps[5].name : "Oversigt og bestilling",
+        description: jgVars.steps && jgVars.steps[5].description ? jgVars.steps[5].description : "Oversigt og bestilling af gaverne.",
     },
 ];
 
@@ -41,6 +46,7 @@ export const infoArtifact = artifact({
     email: "",
     companyName: "",
     cvr: "",
+    ean: "",
     phoneNumber: "",
     address: "",
     postalCode: "",
@@ -85,5 +91,15 @@ export const orderObjectArtifact = artifact(({ get }) => ({
     price_groups: get(selectedPriceGroupsArtifact).map((pg) => ({ id: pg.id, quantity: pg.quantity })),
     delivery_method: get(selectedDeliveryMethodArtifact),
     delivery_date: get(selectedDeliveryDateArtifact),
+    packing_option: get(selectedPackingOptionArtifact),
     info: get(infoArtifact),
 }));
+
+
+export const selectedPackingOptionArtifact = artifact(null);
+
+export const packingOptionsArtifact = artifact(() =>
+    fetch(`${jgVars.apiBase}/packing-options`)
+        .then((response) => response.json())
+        .then((data) => data.items),
+);

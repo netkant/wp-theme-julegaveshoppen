@@ -1,0 +1,43 @@
+.packing-option-name {
+    font-size: 20px;
+    font-weight: 600;
+    margin-bottom: 4px !important;
+    margin-top: 0px !important;
+    padding-bottom: 10px;
+}
+
+.packing-option-description {
+    margin-top: 12px !important;
+}
+
+.packing-option-price {
+    font-size: 14px;
+    font-weight: 600;
+    color: #8a130a;
+    margin-top: 0 !important;
+    margin-bottom: 0 !important;
+}
+
+.delivery-date-week {
+    font-size: 20px;
+    font-weight: 600;
+    margin-bottom: 4px !important;
+}
+
+.packing-options {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+}
+
+@media (max-width: 720px) {
+    .packing-options {
+        grid-template-columns: 1fr;
+    }
+}
+
+.packing-options .option {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}

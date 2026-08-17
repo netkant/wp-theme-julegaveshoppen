@@ -7,6 +7,8 @@
     width: 100%;
     overflow: hidden;
     background-color: #eee8e0;
+    line-height: 1.5;
+    justify-content: space-between;
 }
 
 .option p:last-of-type {
