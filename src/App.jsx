@@ -7,12 +7,11 @@ import "./assets/styles/delivery-dates.css";
 import "./assets/styles/order-summary.css";
 import "./assets/styles/price-groups.css";
 import "./assets/styles/packing-options.css";
-import {
-    readArtifact,
-    resetArtifact,
-    useArtifact,
-    useArtifactValue,
-} from "./hooks/artifact";
+import "./assets/styles/skeleton.css";
+import { ContactFormSkeleton } from "./components/skeletons/ContactFormSkeleton";
+import { OptionsSkeleton } from "./components/skeletons/OptionsSkeleton";
+import { PriceGroupsSkeleton } from "./components/skeletons/PriceGroupsSkeleton";
+import { readArtifact, resetArtifact, useArtifact, useArtifactValue } from "./hooks/artifact";
 import {
     currentStepArtifact,
     infoArtifact,
@@ -51,13 +50,9 @@ function App() {
     const [error, setError] = useState(null);
 
     const selectedPriceGroups = useArtifactValue(selectedPriceGroupsArtifact);
-    const selectedDeliveryMethod = useArtifactValue(
-        selectedDeliveryMethodArtifact,
-    );
+    const selectedDeliveryMethod = useArtifactValue(selectedDeliveryMethodArtifact);
     const selectedDeliveryDate = useArtifactValue(selectedDeliveryDateArtifact);
-    const selectedPackingOption = useArtifactValue(
-        selectedPackingOptionArtifact,
-    );
+    const selectedPackingOption = useArtifactValue(selectedPackingOptionArtifact);
     const info = useArtifactValue(infoArtifact);
 
     const handleOrderClick = () => {
@@ -95,12 +90,7 @@ function App() {
         setSubmitted(false);
     };
 
-    const canOrder =
-        selectedPriceGroups.length &&
-        selectedDeliveryMethod &&
-        selectedDeliveryDate &&
-        selectedPackingOption &&
-        info.email;
+    const canOrder = selectedPriceGroups.length && selectedDeliveryMethod && selectedDeliveryDate && selectedPackingOption && info.email;
 
     const canAdvanceFromStep = {
         1: Boolean(selectedPriceGroups.length),
@@ -123,7 +113,7 @@ function App() {
             validateNumber(info.postalCode) &&
             !validateNumber(info.contactPerson) &&
             !validateNumber(info.address) &&
-            !validateEmail(info.city),
+            !validateNumber(info.city),
         ),
     };
 
@@ -156,8 +146,7 @@ function App() {
             if (!element) {
                 return;
             }
-            const top =
-                element.getBoundingClientRect().top + window.scrollY - 16;
+            const top = element.getBoundingClientRect().top + window.scrollY - 16;
             window.scrollTo({ top, behavior: "smooth" });
         });
     }, [currentStep]);
@@ -167,17 +156,14 @@ function App() {
             <div className="wizard-page">
                 <div className="confirmation">
                     <h1>{jgVars.confirmationHeader || "Tak!"}</h1>
-                    {jgVars.confirmationMessage &&
-                        jgVars.confirmationMessage.length > 0 && (
-                            <div
-                                dangerouslySetInnerHTML={{
-                                    __html: jgVars.confirmationMessage,
-                                }}
-                            ></div>
-                        )}
-                    <button onClick={handleOrderMoreClick}>
-                        {jgVars.confirmationButtonText || "Bestil mere"}
-                    </button>
+                    {jgVars.confirmationMessage && jgVars.confirmationMessage.length > 0 && (
+                        <div
+                            dangerouslySetInnerHTML={{
+                                __html: jgVars.confirmationMessage,
+                            }}
+                        ></div>
+                    )}
+                    <button onClick={handleOrderMoreClick}>{jgVars.confirmationButtonText || "Bestil mere"}</button>
                 </div>
             </div>
         );
@@ -188,10 +174,7 @@ function App() {
             <div className="wizard-page">
                 <div className="confirmation">
                     <h1>Fejl ved bestilling</h1>
-                    <p>
-                        Der opstod en fejl ved bestillingen. Prøv igen senere.
-                        Kontakt support hvis fejlen fortsætter.
-                    </p>
+                    <p>Der opstod en fejl ved bestillingen. Prøv igen senere. Kontakt support hvis fejlen fortsætter.</p>
                     <p>Fejl: {error.message}</p>
                     <button onClick={() => setError(null)}>Prøv igen</button>
                 </div>
@@ -230,42 +213,20 @@ function App() {
                     <aside className="step-list">
                         <ol>
                             {steps.slice(0, steps.length - 1).map((step) => {
-                                const status =
-                                    currentStep === step.id
-                                        ? "active"
-                                        : currentStep > step.id
-                                          ? "completed"
-                                          : "upcoming";
-                                const isClickable =
-                                    step.id !== currentStep &&
-                                    canNavigateToStep(step.id);
-                                const isDisabled =
-                                    status === "upcoming" && !isClickable;
+                                const status = currentStep === step.id ? "active" : currentStep > step.id ? "completed" : "upcoming";
+                                const isClickable = step.id !== currentStep && canNavigateToStep(step.id);
+                                const isDisabled = status === "upcoming" && !isClickable;
                                 return (
                                     <li
                                         key={step.id}
                                         className={`step-item ${status} ${isClickable ? "clickable" : ""} ${isDisabled ? "disabled" : ""}`}
-                                        onClick={
-                                            isClickable
-                                                ? () => setCurrentStep(step.id)
-                                                : undefined
-                                        }
+                                        onClick={isClickable ? () => setCurrentStep(step.id) : undefined}
                                         aria-disabled={!isClickable}
                                     >
-                                        <span className="step-marker">
-                                            {status === "completed" ? (
-                                                <CheckMark />
-                                            ) : (
-                                                step.id
-                                            )}
-                                        </span>
+                                        <span className="step-marker">{status === "completed" ? <CheckMark /> : step.id}</span>
                                         <span className="step-label">
-                                            <span className="step-kicker">
-                                                Trin {step.id}
-                                            </span>
-                                            <span className="step-name">
-                                                {step.name}
-                                            </span>
+                                            <span className="step-kicker">Trin {step.id}</span>
+                                            <span className="step-name">{step.name}</span>
                                         </span>
                                     </li>
                                 );
@@ -277,21 +238,13 @@ function App() {
                         ref={stepContentRef}
                         className={`step-content step-${currentStep}`}
                     >
-                        <Suspense fallback={<p>Indlæser...</p>}>
-                            <Step
-                                step={steps.find(
-                                    (step) => step.id === currentStep,
-                                )}
-                            />
-                        </Suspense>
+                        <Step step={steps.find((step) => step.id === currentStep)} />
 
                         <div className="wizard-nav">
                             {currentStep > 1 && (
                                 <button
                                     disabled={currentStep === 1}
-                                    onClick={() =>
-                                        setCurrentStep(currentStep - 1)
-                                    }
+                                    onClick={() => setCurrentStep(currentStep - 1)}
                                 >
                                     Forrige
                                 </button>
@@ -311,9 +264,7 @@ function App() {
                                     disabled={!canOrder || isLoading}
                                     onClick={() => handleOrderClick()}
                                 >
-                                    {isLoading
-                                        ? "Bestiller..."
-                                        : "Bestil gaveshop"}
+                                    {isLoading ? "Bestiller..." : "Bestil gaveshop"}
                                 </button>
                             )}
                         </div>
@@ -329,15 +280,59 @@ export default App;
 function Step({ step }) {
     switch (step.id) {
         case 1:
-            return <Step1 step={step} />;
+            return (
+                <Suspense fallback={<PriceGroupsSkeleton step={step} />}>
+                    <Step1 step={step} />
+                </Suspense>
+            );
         case 2:
-            return <Step2 step={step} />;
+            return (
+                <Suspense
+                    fallback={
+                        <OptionsSkeleton
+                            step={step}
+                            containerClassName="packing-options"
+                            lines={5}
+                        />
+                    }
+                >
+                    <Step2 step={step} />
+                </Suspense>
+            );
         case 3:
-            return <Step3 step={step} />;
+            return (
+                <Suspense
+                    fallback={
+                        <OptionsSkeleton
+                            step={step}
+                            containerClassName="delivery-methods-options"
+                            lines={3}
+                        />
+                    }
+                >
+                    <Step3 step={step} />
+                </Suspense>
+            );
         case 4:
-            return <Step4 step={step} />;
+            return (
+                <Suspense
+                    fallback={
+                        <OptionsSkeleton
+                            step={step}
+                            containerClassName="delivery-dates-options"
+                            lines={3}
+                        />
+                    }
+                >
+                    <Step4 step={step} />
+                </Suspense>
+            );
         case 5:
-            return <Step5 step={step} />;
+            return (
+                <Suspense fallback={<ContactFormSkeleton step={step} />}>
+                    <Step5 step={step} />
+                </Suspense>
+            );
         case 6:
             return <Step6 step={step} />;
         default:
@@ -347,19 +342,14 @@ function Step({ step }) {
 
 function Step1({ step }) {
     const priceGroups = useArtifactValue(priceGroupsArtifact);
-    const [selectedPriceGroups, setSelectedPriceGroups] = useArtifact(
-        selectedPriceGroupsArtifact,
-    );
+    const [selectedPriceGroups, setSelectedPriceGroups] = useArtifact(selectedPriceGroupsArtifact);
 
     const handlePriceGroupClick = (priceGroup) => {
         setSelectedPriceGroups((prev) => {
             if (prev.some((pg) => pg.id === priceGroup.id)) {
                 return prev.filter((pg) => pg.id !== priceGroup.id);
             }
-            return [
-                ...prev,
-                { ...priceGroup, quantity: priceGroup.min_quantity },
-            ];
+            return [...prev, { ...priceGroup, quantity: priceGroup.min_quantity }];
         });
     };
 
@@ -369,29 +359,18 @@ function Step1({ step }) {
                 pg.id === priceGroup.id
                     ? {
                           ...pg,
-                          quantity: Math.min(
-                              999,
-                              Math.max(
-                                  minQuantity,
-                                  Number(pg.quantity) + delta,
-                              ),
-                          ),
+                          quantity: Math.min(999, Math.max(minQuantity, Number(pg.quantity) + delta)),
                       }
                     : pg,
             ),
         );
     };
 
-    const clampQuantity = (value, minQuantity) =>
-        Math.min(999, Math.max(minQuantity, Number(value) || minQuantity));
+    const clampQuantity = (value, minQuantity) => Math.min(999, Math.max(minQuantity, Number(value) || minQuantity));
 
     const handlePriceGroupQuantityInputChange = (priceGroup, value) => {
         if (value === "") {
-            setSelectedPriceGroups((prev) =>
-                prev.map((pg) =>
-                    pg.id === priceGroup.id ? { ...pg, quantity: "" } : pg,
-                ),
-            );
+            setSelectedPriceGroups((prev) => prev.map((pg) => (pg.id === priceGroup.id ? { ...pg, quantity: "" } : pg)));
             return;
         }
 
@@ -400,13 +379,7 @@ function Step1({ step }) {
             return;
         }
 
-        setSelectedPriceGroups((prev) =>
-            prev.map((pg) =>
-                pg.id === priceGroup.id
-                    ? { ...pg, quantity: Math.min(999, parsed) }
-                    : pg,
-            ),
-        );
+        setSelectedPriceGroups((prev) => prev.map((pg) => (pg.id === priceGroup.id ? { ...pg, quantity: Math.min(999, parsed) } : pg)));
     };
 
     const handlePriceGroupQuantityInputBlur = (priceGroup, minQuantity) => {
@@ -428,9 +401,7 @@ function Step1({ step }) {
             <p className="step-description">{step.description}</p>
             <div className="price-groups-options">
                 {priceGroups.map((priceGroup) => {
-                    const selected = selectedPriceGroups.find(
-                        (pg) => pg.id === priceGroup.id,
-                    );
+                    const selected = selectedPriceGroups.find((pg) => pg.id === priceGroup.id);
 
                     return (
                         <div
@@ -452,15 +423,9 @@ function Step1({ step }) {
                                     <CheckMark />
                                 </div>
                             )}
-                            <p className="price-group-option-name">
-                                {priceGroup.name}
-                            </p>
+                            <p className="price-group-option-name">{priceGroup.name}</p>
                             <div className="price-group-option-bottom">
-                                {!selected && (
-                                    <button className="select-button">
-                                        Vælg gaveshop
-                                    </button>
-                                )}
+                                {!selected && <button className="select-button">Vælg gaveshop</button>}
                                 {selected && (
                                     <div
                                         className="quantity-stepper"
@@ -469,13 +434,7 @@ function Step1({ step }) {
                                         <button
                                             type="button"
                                             className="quantity-left"
-                                            onClick={() =>
-                                                handlePriceGroupQuantityChange(
-                                                    priceGroup,
-                                                    -1,
-                                                    priceGroup.min_quantity,
-                                                )
-                                            }
+                                            onClick={() => handlePriceGroupQuantityChange(priceGroup, -1, priceGroup.min_quantity)}
                                         >
                                             <svg
                                                 xmlns="http://www.w3.org/2000/svg"
@@ -497,35 +456,14 @@ function Step1({ step }) {
                                             type="number"
                                             min={priceGroup.min_quantity}
                                             max={999}
-                                            value={
-                                                selected
-                                                    ? selected.quantity
-                                                    : priceGroup.min_quantity
-                                            }
-                                            onChange={(e) =>
-                                                handlePriceGroupQuantityInputChange(
-                                                    priceGroup,
-                                                    e.target.value,
-                                                    priceGroup.min_quantity,
-                                                )
-                                            }
-                                            onBlur={() =>
-                                                handlePriceGroupQuantityInputBlur(
-                                                    priceGroup,
-                                                    priceGroup.min_quantity,
-                                                )
-                                            }
+                                            value={selected ? selected.quantity : priceGroup.min_quantity}
+                                            onChange={(e) => handlePriceGroupQuantityInputChange(priceGroup, e.target.value, priceGroup.min_quantity)}
+                                            onBlur={() => handlePriceGroupQuantityInputBlur(priceGroup, priceGroup.min_quantity)}
                                         />
                                         <button
                                             type="button"
                                             className="quantity-right"
-                                            onClick={() =>
-                                                handlePriceGroupQuantityChange(
-                                                    priceGroup,
-                                                    1,
-                                                    priceGroup.min_quantity,
-                                                )
-                                            }
+                                            onClick={() => handlePriceGroupQuantityChange(priceGroup, 1, priceGroup.min_quantity)}
                                         >
                                             <svg
                                                 xmlns="http://www.w3.org/2000/svg"
@@ -564,9 +502,7 @@ function Step1({ step }) {
 
 function Step2({ step }) {
     const packingOptions = useArtifactValue(packingOptionsArtifact);
-    const [selectedPackingOption, setSelectedPackingOption] = useArtifact(
-        selectedPackingOptionArtifact,
-    );
+    const [selectedPackingOption, setSelectedPackingOption] = useArtifact(selectedPackingOptionArtifact);
 
     return (
         <div>
@@ -585,9 +521,7 @@ function Step2({ step }) {
                             </div>
                         )}
                         <div>
-                            <p className="packing-option-name">
-                                {packingOption.name}
-                            </p>
+                            <p className="packing-option-name">{packingOption.name}</p>
                             {packingOption.description && (
                                 <div
                                     dangerouslySetInnerHTML={{
@@ -596,11 +530,7 @@ function Step2({ step }) {
                                 ></div>
                             )}
                         </div>
-                        {packingOption.price_text && (
-                            <p className="packing-option-price">
-                                {packingOption.price_text}
-                            </p>
-                        )}
+                        {packingOption.price_text && <p className="packing-option-price">{packingOption.price_text}</p>}
                     </div>
                 ))}
             </div>
@@ -610,9 +540,7 @@ function Step2({ step }) {
 
 function Step3({ step }) {
     const deliveryMethods = useArtifactValue(deliveryMethodsArtifact);
-    const [selectedDeliveryMethod, setSelectedDeliveryMethod] = useArtifact(
-        selectedDeliveryMethodArtifact,
-    );
+    const [selectedDeliveryMethod, setSelectedDeliveryMethod] = useArtifact(selectedDeliveryMethodArtifact);
 
     return (
         <div>
@@ -623,9 +551,7 @@ function Step3({ step }) {
                     <div
                         className={`option ${selectedDeliveryMethod?.id === deliveryMethod.id ? "selected" : ""}`}
                         key={deliveryMethod.id}
-                        onClick={() =>
-                            setSelectedDeliveryMethod(deliveryMethod)
-                        }
+                        onClick={() => setSelectedDeliveryMethod(deliveryMethod)}
                     >
                         {selectedDeliveryMethod?.id === deliveryMethod.id && (
                             <div className="check-mark">
@@ -633,9 +559,7 @@ function Step3({ step }) {
                             </div>
                         )}
                         <div>
-                            <p className="delivery-method-name">
-                                {deliveryMethod.name}
-                            </p>
+                            <p className="delivery-method-name">{deliveryMethod.name}</p>
                             {deliveryMethod.description && (
                                 <div
                                     className="delivery-method-description"
@@ -645,13 +569,7 @@ function Step3({ step }) {
                                 ></div>
                             )}
                         </div>
-                        <div>
-                            {deliveryMethod.price_text && (
-                                <p className="delivery-method-price">
-                                    {deliveryMethod.price_text}
-                                </p>
-                            )}
-                        </div>
+                        <div>{deliveryMethod.price_text && <p className="delivery-method-price">{deliveryMethod.price_text}</p>}</div>
                     </div>
                 ))}
             </div>
@@ -661,9 +579,7 @@ function Step3({ step }) {
 
 function Step4({ step }) {
     const deliverydates = useArtifactValue(deliveryDatesArtifact);
-    const [selectedDeliveryDate, setSelectedDeliveryDate] = useArtifact(
-        selectedDeliveryDateArtifact,
-    );
+    const [selectedDeliveryDate, setSelectedDeliveryDate] = useArtifact(selectedDeliveryDateArtifact);
 
     return (
         <div>
@@ -681,20 +597,10 @@ function Step4({ step }) {
                                 <CheckMark />
                             </div>
                         )}
-                        <p className="delivery-date-week">
-                            Uge{" "}
-                            {formatWeekNumber(
-                                deliverydate.week_number,
-                                deliverydate.delivery_date_timestamp,
-                            )}
-                        </p>
+                        <p className="delivery-date-week">Uge {formatWeekNumber(deliverydate.week_number, deliverydate.delivery_date_timestamp)}</p>
+                        <p>Vi leverer julegaverne i uge {deliverydate.week_number}.</p>
                         <p>
-                            Vi leverer julegaverne i uge{" "}
-                            {deliverydate.week_number}.
-                        </p>
-                        <p>
-                            Dine kollegaer skal have valgt julegaver senest den{" "}
-                            <b>{deliverydate.order_date}</b>
+                            Dine kollegaer skal have valgt julegaver senest den <b>{deliverydate.order_date}</b>
                         </p>
                     </div>
                 ))}
@@ -724,9 +630,7 @@ function Step5({ step }) {
                 <input
                     id="company-name"
                     value={info.companyName}
-                    onChange={(e) =>
-                        handleInfoChange("companyName", e.target.value)
-                    }
+                    onChange={(e) => handleInfoChange("companyName", e.target.value)}
                     onBlur={() => handleBlurTrim("companyName")}
                     className={`company-name-input input-field ${info.companyName ? "has-value" : ""}`}
                     type="text"
@@ -740,9 +644,7 @@ function Step5({ step }) {
                 <input
                     id="address"
                     value={info.address}
-                    onChange={(e) =>
-                        handleInfoChange("address", e.target.value)
-                    }
+                    onChange={(e) => handleInfoChange("address", e.target.value)}
                     onBlur={() => handleBlurTrim("address")}
                     className={`address-input input-field ${info.address ? "has-value" : ""} ${info.address && validateNumber(info.address) ? "invalid" : ""}`}
                     type="text"
@@ -757,9 +659,7 @@ function Step5({ step }) {
                     <input
                         id="postal-code"
                         value={info.postalCode}
-                        onChange={(e) =>
-                            handleInfoChange("postalCode", e.target.value)
-                        }
+                        onChange={(e) => handleInfoChange("postalCode", e.target.value)}
                         onBlur={() => handleBlurTrim("postalCode")}
                         className={`postal-code-input input-field ${info.postalCode ? "has-value" : ""} ${info.postalCode && !validateNumber(info.postalCode) ? "invalid" : ""}`}
                         type="text"
@@ -773,9 +673,7 @@ function Step5({ step }) {
                     <input
                         id="city"
                         value={info.city}
-                        onChange={(e) =>
-                            handleInfoChange("city", e.target.value)
-                        }
+                        onChange={(e) => handleInfoChange("city", e.target.value)}
                         onBlur={() => handleBlurTrim("city")}
                         className={`city-input input-field ${info.city ? "has-value" : ""} ${info.city && validateNumber(info.city) ? "invalid" : ""}`}
                         type="text"
@@ -791,9 +689,7 @@ function Step5({ step }) {
                     <input
                         id="cvr"
                         value={info.cvr}
-                        onChange={(e) =>
-                            handleInfoChange("cvr", e.target.value)
-                        }
+                        onChange={(e) => handleInfoChange("cvr", e.target.value)}
                         onBlur={() => handleBlurTrim("cvr")}
                         className={`cvr-input input-field ${info.cvr ? "has-value" : ""} ${info.cvr && !validateNumber(info.cvr) ? "invalid" : ""}`}
                         type="text"
@@ -806,9 +702,7 @@ function Step5({ step }) {
                     <input
                         id="ean"
                         value={info.ean}
-                        onChange={(e) =>
-                            handleInfoChange("ean", e.target.value)
-                        }
+                        onChange={(e) => handleInfoChange("ean", e.target.value)}
                         onBlur={() => handleBlurTrim("ean")}
                         className={`ean-input input-field ${info.ean ? "has-value" : ""} ${info.ean && !validateNumber(info.ean) ? "invalid" : ""}`}
                         type="text"
@@ -822,9 +716,7 @@ function Step5({ step }) {
                 <input
                     id="contact-person"
                     value={info.contactPerson}
-                    onChange={(e) =>
-                        handleInfoChange("contactPerson", e.target.value)
-                    }
+                    onChange={(e) => handleInfoChange("contactPerson", e.target.value)}
                     onBlur={() => handleBlurTrim("contactPerson")}
                     className={`contact-person-input input-field ${info.contactPerson ? "has-value" : ""} ${info.contactPerson && validateNumber(info.contactPerson) ? "invalid" : ""}`}
                     type="text"
@@ -839,9 +731,7 @@ function Step5({ step }) {
                     <input
                         id="email"
                         value={info.email}
-                        onChange={(e) =>
-                            handleInfoChange("email", e.target.value)
-                        }
+                        onChange={(e) => handleInfoChange("email", e.target.value)}
                         onBlur={() => handleBlurTrim("email")}
                         className={`email-input input-field ${info.email ? "has-value" : ""} ${info.email && !validateEmail(info.email) ? "invalid" : ""}`}
                         type="email"
@@ -854,9 +744,7 @@ function Step5({ step }) {
                     <input
                         id="phone-number"
                         value={info.phoneNumber}
-                        onChange={(e) =>
-                            handleInfoChange("phoneNumber", e.target.value)
-                        }
+                        onChange={(e) => handleInfoChange("phoneNumber", e.target.value)}
                         onBlur={() => handleBlurTrim("phoneNumber")}
                         className={`phone-number-input input-field ${info.phoneNumber ? "has-value" : ""} ${info.phoneNumber && !validateNumber(info.phoneNumber) ? "invalid" : ""}`}
                         type="text"
@@ -871,13 +759,9 @@ function Step5({ step }) {
 
 function Step6({ step }) {
     const selectedPriceGroups = useArtifactValue(selectedPriceGroupsArtifact);
-    const selectedDeliveryMethod = useArtifactValue(
-        selectedDeliveryMethodArtifact,
-    );
+    const selectedDeliveryMethod = useArtifactValue(selectedDeliveryMethodArtifact);
     const selectedDeliveryDate = useArtifactValue(selectedDeliveryDateArtifact);
-    const selectedPackingOption = useArtifactValue(
-        selectedPackingOptionArtifact,
-    );
+    const selectedPackingOption = useArtifactValue(selectedPackingOptionArtifact);
     const info = useArtifactValue(infoArtifact);
 
     const getDeliveryTotal = (totalCards) => {
@@ -921,11 +805,7 @@ function Step6({ step }) {
 
     let packingOptionPrice = 0;
     if (selectedPackingOption) {
-        packingOptionPrice = calcPrice(
-            giftCardSubtotal,
-            selectedPackingOption?.price_calc,
-            totalCards,
-        );
+        packingOptionPrice = calcPrice(giftCardSubtotal, selectedPackingOption?.price_calc, totalCards);
     }
 
     const total = subtotal + packingOptionPrice;
@@ -955,29 +835,17 @@ function Step6({ step }) {
                     ))}
                     {selectedPackingOption && (
                         <tr>
-                            <td>
-                                Gaveindpakning — {selectedPackingOption.name}
-                            </td>
+                            <td>Gaveindpakning — {selectedPackingOption.name}</td>
                             <td>{totalCards > 0 ? totalCards : "—"}</td>
-                            <td>
-                                {totalCards > 0
-                                    ? formatPrice(
-                                          packingOptionPrice / totalCards,
-                                      )
-                                    : "—"}
-                            </td>
+                            <td>{totalCards > 0 ? formatPrice(packingOptionPrice / totalCards) : "—"}</td>
                             <td>{formatPrice(packingOptionPrice)}</td>
                         </tr>
                     )}
                     {selectedDeliveryMethod && (
                         <tr>
-                            <td>
-                                Gavekodelevering — {selectedDeliveryMethod.name}
-                            </td>
+                            <td>Gavekodelevering — {selectedDeliveryMethod.name}</td>
                             <td>{totalCards > 0 ? totalCards : "—"}</td>
-                            <td>
-                                {formatPrice(selectedDeliveryMethod?.price)}
-                            </td>
+                            <td>{formatPrice(selectedDeliveryMethod?.price)}</td>
                             <td>{formatPrice(getDeliveryTotal(totalCards))}</td>
                         </tr>
                     )}
@@ -1002,23 +870,14 @@ function Step6({ step }) {
                     {selectedDeliveryDate ? (
                         <>
                             <p>
-                                Vi leverer julegaverne i <b>uge{" "}
-                                {formatWeekNumber(
-                                    selectedDeliveryDate.week_number,
-                                    selectedDeliveryDate.delivery_date_timestamp,
-                                )}</b>
+                                Vi leverer julegaverne i <b>uge {formatWeekNumber(selectedDeliveryDate.week_number, selectedDeliveryDate.delivery_date_timestamp)}</b>
                             </p>
                             <p>
-                                Dine kollegaer skal have valgt julegaver senest
-                                den <b>{selectedDeliveryDate.order_date}</b>
+                                Dine kollegaer skal have valgt julegaver senest den <b>{selectedDeliveryDate.order_date}</b>
                             </p>
                             <div className="delivery-date-note-container">
-                                <p className="delivery-date-note-title">
-                                    Note:
-                                </p>
-                                <p className="delivery-date-note">
-                                    {selectedDeliveryDate.note}
-                                </p>
+                                <p className="delivery-date-note-title">Note:</p>
+                                <p className="delivery-date-note">{selectedDeliveryDate.note}</p>
                             </div>
                         </>
                     ) : (

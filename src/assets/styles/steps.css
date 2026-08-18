@@ -136,4 +136,5 @@
 /* Content (right column) */
 .step-content {
     min-height: 200px;
+    min-width: 0;
 }
