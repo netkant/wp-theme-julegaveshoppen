@@ -29,6 +29,19 @@ import {
     jgVars,
 } from "./data";
 
+const validateEmail = (email) => {
+    return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+};
+
+const validateNumber = (number) => {
+    return /^[0-9]+$/.test(number);
+};
+
+const formatWeekNumber = (weekNumber, deliveryDate) => {
+    // eg. 4 - 2027
+    return weekNumber + " - " + new Date(deliveryDate * 1000).getFullYear();
+};
+
 function App() {
     const [currentStep, setCurrentStep] = useArtifact(currentStepArtifact);
     const stepContentRef = useRef(null);
@@ -82,14 +95,6 @@ function App() {
         setSubmitted(false);
     };
 
-    const validateEmail = (email) => {
-        return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
-    };
-
-    const validateNumber = (number) => {
-        return /^[0-9]+$/.test(number);
-    };
-
     const canOrder =
         selectedPriceGroups.length &&
         selectedDeliveryMethod &&
@@ -115,7 +120,10 @@ function App() {
             validateEmail(info.email) &&
             validateNumber(info.phoneNumber) &&
             validateNumber(info.cvr) &&
-            validateNumber(info.postalCode),
+            validateNumber(info.postalCode) &&
+            !validateNumber(info.contactPerson) &&
+            !validateNumber(info.address) &&
+            !validateEmail(info.city),
         ),
     };
 
@@ -348,7 +356,10 @@ function Step1({ step }) {
             if (prev.some((pg) => pg.id === priceGroup.id)) {
                 return prev.filter((pg) => pg.id !== priceGroup.id);
             }
-            return [...prev, { ...priceGroup, quantity: priceGroup.min_quantity }];
+            return [
+                ...prev,
+                { ...priceGroup, quantity: priceGroup.min_quantity },
+            ];
         });
     };
 
@@ -360,7 +371,10 @@ function Step1({ step }) {
                           ...pg,
                           quantity: Math.min(
                               999,
-                              Math.max(minQuantity, Number(pg.quantity) + delta),
+                              Math.max(
+                                  minQuantity,
+                                  Number(pg.quantity) + delta,
+                              ),
                           ),
                       }
                     : pg,
@@ -399,7 +413,10 @@ function Step1({ step }) {
         setSelectedPriceGroups((prev) =>
             prev.map((pg) =>
                 pg.id === priceGroup.id
-                    ? { ...pg, quantity: clampQuantity(pg.quantity, minQuantity) }
+                    ? {
+                          ...pg,
+                          quantity: clampQuantity(pg.quantity, minQuantity),
+                      }
                     : pg,
             ),
         );
@@ -481,7 +498,9 @@ function Step1({ step }) {
                                             min={priceGroup.min_quantity}
                                             max={999}
                                             value={
-                                                selected ? selected.quantity : priceGroup.min_quantity
+                                                selected
+                                                    ? selected.quantity
+                                                    : priceGroup.min_quantity
                                             }
                                             onChange={(e) =>
                                                 handlePriceGroupQuantityInputChange(
@@ -618,7 +637,12 @@ function Step3({ step }) {
                                 {deliveryMethod.name}
                             </p>
                             {deliveryMethod.description && (
-                                <div className="delivery-method-description" dangerouslySetInnerHTML={{ __html: deliveryMethod.description }}></div>
+                                <div
+                                    className="delivery-method-description"
+                                    dangerouslySetInnerHTML={{
+                                        __html: deliveryMethod.description,
+                                    }}
+                                ></div>
                             )}
                         </div>
                         <div>
@@ -658,7 +682,11 @@ function Step4({ step }) {
                             </div>
                         )}
                         <p className="delivery-date-week">
-                            Uge {deliverydate.week_number}
+                            Uge{" "}
+                            {formatWeekNumber(
+                                deliverydate.week_number,
+                                deliverydate.delivery_date_timestamp,
+                            )}
                         </p>
                         <p>
                             Vi leverer julegaverne i uge{" "}
@@ -666,7 +694,7 @@ function Step4({ step }) {
                         </p>
                         <p>
                             Dine kollegaer skal have valgt julegaver senest den{" "}
-                            <b>{deliverydate.delivery_date}</b>
+                            <b>{deliverydate.order_date}</b>
                         </p>
                     </div>
                 ))}
@@ -682,28 +710,32 @@ function Step5({ step }) {
         setInfo((prev) => ({ ...prev, [key]: value }));
     };
 
+    const handleBlurTrim = (key) => {
+        setInfo((prev) => ({ ...prev, [key]: prev[key].trim() }));
+    };
+
     return (
         <div className="input-container-column">
             <h2>{step.name}</h2>
             <p className="step-description">{step.description}</p>
 
+            <div className="input-container required">
+                <label htmlFor="company-name">Firmanavn</label>
+                <input
+                    id="company-name"
+                    value={info.companyName}
+                    onChange={(e) =>
+                        handleInfoChange("companyName", e.target.value)
+                    }
+                    onBlur={() => handleBlurTrim("companyName")}
+                    className={`company-name-input input-field ${info.companyName ? "has-value" : ""}`}
+                    type="text"
+                    data-1p-ignore="true"
+                    required
+                />
+            </div>
 
             <div className="input-container required">
-                    <label htmlFor="company-name">Firmanavn</label>
-                    <input
-                        id="company-name"
-                        value={info.companyName}
-                        onChange={(e) =>
-                            handleInfoChange("companyName", e.target.value)
-                        }
-                        className="company-name-input input-field"
-                        type="text"
-                        data-1p-ignore="true"
-                        required
-                    />
-                </div>
-
-                <div className="input-container required">
                 <label htmlFor="address">Adresse</label>
                 <input
                     id="address"
@@ -711,7 +743,8 @@ function Step5({ step }) {
                     onChange={(e) =>
                         handleInfoChange("address", e.target.value)
                     }
-                    className="address-input input-field"
+                    onBlur={() => handleBlurTrim("address")}
+                    className={`address-input input-field ${info.address ? "has-value" : ""} ${info.address && validateNumber(info.address) ? "invalid" : ""}`}
                     type="text"
                     data-1p-ignore="true"
                     required
@@ -727,7 +760,8 @@ function Step5({ step }) {
                         onChange={(e) =>
                             handleInfoChange("postalCode", e.target.value)
                         }
-                        className="postal-code-input input-field"
+                        onBlur={() => handleBlurTrim("postalCode")}
+                        className={`postal-code-input input-field ${info.postalCode ? "has-value" : ""} ${info.postalCode && !validateNumber(info.postalCode) ? "invalid" : ""}`}
                         type="text"
                         data-1p-ignore="true"
                         required
@@ -742,7 +776,8 @@ function Step5({ step }) {
                         onChange={(e) =>
                             handleInfoChange("city", e.target.value)
                         }
-                        className="city-input input-field"
+                        onBlur={() => handleBlurTrim("city")}
+                        className={`city-input input-field ${info.city ? "has-value" : ""} ${info.city && validateNumber(info.city) ? "invalid" : ""}`}
                         type="text"
                         data-1p-ignore="true"
                         required
@@ -759,7 +794,8 @@ function Step5({ step }) {
                         onChange={(e) =>
                             handleInfoChange("cvr", e.target.value)
                         }
-                        className="cvr-input input-field"
+                        onBlur={() => handleBlurTrim("cvr")}
+                        className={`cvr-input input-field ${info.cvr ? "has-value" : ""} ${info.cvr && !validateNumber(info.cvr) ? "invalid" : ""}`}
                         type="text"
                         data-1p-ignore="true"
                         required
@@ -773,14 +809,13 @@ function Step5({ step }) {
                         onChange={(e) =>
                             handleInfoChange("ean", e.target.value)
                         }
-                        className="ean-input input-field"
+                        onBlur={() => handleBlurTrim("ean")}
+                        className={`ean-input input-field ${info.ean ? "has-value" : ""} ${info.ean && !validateNumber(info.ean) ? "invalid" : ""}`}
                         type="text"
                         data-1p-ignore="true"
                     />
                 </div>
             </div>
-
-            
 
             <div className="input-container required">
                 <label htmlFor="contact-person">Kontaktperson</label>
@@ -790,7 +825,8 @@ function Step5({ step }) {
                     onChange={(e) =>
                         handleInfoChange("contactPerson", e.target.value)
                     }
-                    className="contact-person-input input-field"
+                    onBlur={() => handleBlurTrim("contactPerson")}
+                    className={`contact-person-input input-field ${info.contactPerson ? "has-value" : ""} ${info.contactPerson && validateNumber(info.contactPerson) ? "invalid" : ""}`}
                     type="text"
                     data-1p-ignore="true"
                     required
@@ -806,7 +842,8 @@ function Step5({ step }) {
                         onChange={(e) =>
                             handleInfoChange("email", e.target.value)
                         }
-                        className="email-input input-field"
+                        onBlur={() => handleBlurTrim("email")}
+                        className={`email-input input-field ${info.email ? "has-value" : ""} ${info.email && !validateEmail(info.email) ? "invalid" : ""}`}
                         type="email"
                         data-1p-ignore="true"
                         required
@@ -820,15 +857,14 @@ function Step5({ step }) {
                         onChange={(e) =>
                             handleInfoChange("phoneNumber", e.target.value)
                         }
-                        className="phone-number-input input-field"
+                        onBlur={() => handleBlurTrim("phoneNumber")}
+                        className={`phone-number-input input-field ${info.phoneNumber ? "has-value" : ""} ${info.phoneNumber && !validateNumber(info.phoneNumber) ? "invalid" : ""}`}
                         type="text"
                         data-1p-ignore="true"
                         required
                     />
                 </div>
             </div>
-
-
         </div>
     );
 }
@@ -917,6 +953,22 @@ function Step6({ step }) {
                             <td>{formatPrice(row.lineTotal)}</td>
                         </tr>
                     ))}
+                    {selectedPackingOption && (
+                        <tr>
+                            <td>
+                                Gaveindpakning — {selectedPackingOption.name}
+                            </td>
+                            <td>{totalCards > 0 ? totalCards : "—"}</td>
+                            <td>
+                                {totalCards > 0
+                                    ? formatPrice(
+                                          packingOptionPrice / totalCards,
+                                      )
+                                    : "—"}
+                            </td>
+                            <td>{formatPrice(packingOptionPrice)}</td>
+                        </tr>
+                    )}
                     {selectedDeliveryMethod && (
                         <tr>
                             <td>
@@ -927,16 +979,6 @@ function Step6({ step }) {
                                 {formatPrice(selectedDeliveryMethod?.price)}
                             </td>
                             <td>{formatPrice(getDeliveryTotal(totalCards))}</td>
-                        </tr>
-                    )}
-                    {selectedPackingOption && (
-                        <tr>
-                            <td>
-                                Gaveindpakning — {selectedPackingOption.name}
-                            </td>
-                            <td>{totalCards > 0 ? totalCards : "—"}</td>
-                            <td>{totalCards > 0 ? formatPrice(packingOptionPrice / totalCards) : "—"}</td>
-                            <td>{formatPrice(packingOptionPrice)}</td>
                         </tr>
                     )}
                     <tr>
@@ -959,22 +1001,17 @@ function Step6({ step }) {
                     <h3>Leveringstidspunkt</h3>
                     {selectedDeliveryDate ? (
                         <>
-                            <dl className="summary-list">
-                                <div>
-                                    <dt>Uge</dt>
-                                    <dd>{selectedDeliveryDate.week_number}</dd>
-                                </div>
-                                <div>
-                                    <dt>Seneste bestilling</dt>
-                                    <dd>{selectedDeliveryDate.order_date}</dd>
-                                </div>
-                                <div>
-                                    <dt>Leveringsdato</dt>
-                                    <dd>
-                                        {selectedDeliveryDate.delivery_date}
-                                    </dd>
-                                </div>
-                            </dl>
+                            <p>
+                                Vi leverer julegaverne i <b>uge{" "}
+                                {formatWeekNumber(
+                                    selectedDeliveryDate.week_number,
+                                    selectedDeliveryDate.delivery_date_timestamp,
+                                )}</b>
+                            </p>
+                            <p>
+                                Dine kollegaer skal have valgt julegaver senest
+                                den <b>{selectedDeliveryDate.order_date}</b>
+                            </p>
                             <div className="delivery-date-note-container">
                                 <p className="delivery-date-note-title">
                                     Note:

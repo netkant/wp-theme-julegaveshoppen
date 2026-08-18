@@ -216,3 +216,7 @@ p {
 .wizard-close-button:hover {
   background-color: #666;
 }
+
+.input-field.invalid {
+  border-color: #8a130a;
+}
