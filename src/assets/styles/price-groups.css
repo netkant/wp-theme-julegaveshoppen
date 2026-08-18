@@ -73,13 +73,10 @@
 .quantity-stepper {
     display: flex;
     align-items: center;
-    gap: 8px;
     visibility: hidden;
     z-index: 1;
     width: fit-content;
-    border-radius: 8px;
-    background-color: #fff;
-
+    border-radius: 4px;
 }
 
 .quantity-stepper button {
@@ -98,11 +95,11 @@
 }
 
 .quantity-left {
-    border-radius: 8px 0 0 8px !important;
+    border-radius: 4px 0 0 4px !important;
 }
 
 .quantity-right {
-    border-radius: 0 8px 8px 0 !important;
+    border-radius: 0 4px 4px 0 !important;
 }
 
 .quantity-stepper span {
@@ -116,7 +113,9 @@
     border: none;
     font-size: 16px;
     font-weight: 600;
-    max-width: 35px;
+    max-width: 52px;
+    background-color: #fff;
+    padding: 8px 12px;
 }
 
 .quantity-stepper-value::-webkit-outer-spin-button,
@@ -162,4 +161,27 @@
     z-index: 100;
     display: block;
     cursor: pointer;
+}
+
+@media (max-width: 768px) {
+    .price-group-option-name {
+        margin-bottom: 24px !important;
+    }
+
+    .price-group-option {
+        aspect-ratio: unset;
+    }
+}
+
+@media (max-width: 455px) {
+    .price-group-option-bottom {
+        flex-direction: column;
+        gap: 12px;
+    }
+
+    .price-group-option-bottom button.select-button,
+    .price-group-option-bottom a.view-selection-button {
+        width: 100%;
+        text-align: center;
+    }
 }

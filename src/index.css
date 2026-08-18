@@ -18,12 +18,22 @@ p {
    by whatever is inside it, so placeholder and loaded content are the same
    width. Plain 1fr means minmax(auto, 1fr), which floors the track at the
    content's min-content width. */
-.wizard {
-  display: grid;
+
+.wizard-inner {
+  max-width: 1320px;
+  margin: 0 auto;
+  width: 100%;
   grid-template-columns: 260px minmax(0, 1fr);
-  gap: 32px;
   align-items: start;
+  gap: 32px;
+  display: grid;
 }
+
+.wizard-container .wizard {
+  margin: 0 auto;
+  width: 100%;
+}
+
 
 .wizard-nav {
   display: flex;

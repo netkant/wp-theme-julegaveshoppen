@@ -210,65 +210,67 @@ function App() {
                     </button>
                 )}
                 <div className="wizard">
-                    <aside className="step-list">
-                        <ol>
-                            {steps.slice(0, steps.length - 1).map((step) => {
-                                const status = currentStep === step.id ? "active" : currentStep > step.id ? "completed" : "upcoming";
-                                const isClickable = step.id !== currentStep && canNavigateToStep(step.id);
-                                const isDisabled = status === "upcoming" && !isClickable;
-                                return (
-                                    <li
-                                        key={step.id}
-                                        className={`step-item ${status} ${isClickable ? "clickable" : ""} ${isDisabled ? "disabled" : ""}`}
-                                        onClick={isClickable ? () => setCurrentStep(step.id) : undefined}
-                                        aria-disabled={!isClickable}
+                    <div className="wizard-inner">
+                        <aside className="step-list">
+                            <ol>
+                                {steps.slice(0, steps.length - 1).map((step) => {
+                                    const status = currentStep === step.id ? "active" : currentStep > step.id ? "completed" : "upcoming";
+                                    const isClickable = step.id !== currentStep && canNavigateToStep(step.id);
+                                    const isDisabled = status === "upcoming" && !isClickable;
+                                    return (
+                                        <li
+                                            key={step.id}
+                                            className={`step-item ${status} ${isClickable ? "clickable" : ""} ${isDisabled ? "disabled" : ""}`}
+                                            onClick={isClickable ? () => setCurrentStep(step.id) : undefined}
+                                            aria-disabled={!isClickable}
+                                        >
+                                            <span className="step-marker">{status === "completed" ? <CheckMark /> : step.id}</span>
+                                            <span className="step-label">
+                                                <span className="step-kicker">Trin {step.id}</span>
+                                                <span className="step-name">{step.name}</span>
+                                            </span>
+                                        </li>
+                                    );
+                                })}
+                            </ol>
+                        </aside>
+
+                        <section
+                            ref={stepContentRef}
+                            className={`step-content step-${currentStep}`}
+                        >
+                            <Step step={steps.find((step) => step.id === currentStep)} />
+
+                            <div className="wizard-nav">
+                                {currentStep > 1 && (
+                                    <button
+                                        disabled={currentStep === 1}
+                                        onClick={() => setCurrentStep(currentStep - 1)}
                                     >
-                                        <span className="step-marker">{status === "completed" ? <CheckMark /> : step.id}</span>
-                                        <span className="step-label">
-                                            <span className="step-kicker">Trin {step.id}</span>
-                                            <span className="step-name">{step.name}</span>
-                                        </span>
-                                    </li>
-                                );
-                            })}
-                        </ol>
-                    </aside>
+                                        Forrige
+                                    </button>
+                                )}
 
-                    <section
-                        ref={stepContentRef}
-                        className={`step-content step-${currentStep}`}
-                    >
-                        <Step step={steps.find((step) => step.id === currentStep)} />
-
-                        <div className="wizard-nav">
-                            {currentStep > 1 && (
-                                <button
-                                    disabled={currentStep === 1}
-                                    onClick={() => setCurrentStep(currentStep - 1)}
-                                >
-                                    Forrige
-                                </button>
-                            )}
-
-                            {currentStep < steps.length ? (
-                                <button
-                                    disabled={!canAdvance}
-                                    onClick={handleNextClick}
-                                    className="next-button"
-                                >
-                                    Næste
-                                </button>
-                            ) : (
-                                <button
-                                    className="order-button"
-                                    disabled={!canOrder || isLoading}
-                                    onClick={() => handleOrderClick()}
-                                >
-                                    {isLoading ? "Bestiller..." : "Bestil gaveshop"}
-                                </button>
-                            )}
-                        </div>
-                    </section>
+                                {currentStep < steps.length ? (
+                                    <button
+                                        disabled={!canAdvance}
+                                        onClick={handleNextClick}
+                                        className="next-button"
+                                    >
+                                        Næste
+                                    </button>
+                                ) : (
+                                    <button
+                                        className="order-button"
+                                        disabled={!canOrder || isLoading}
+                                        onClick={() => handleOrderClick()}
+                                    >
+                                        {isLoading ? "Bestiller..." : "Bestil gaveshop"}
+                                    </button>
+                                )}
+                            </div>
+                        </section>
+                    </div>
                 </div>
             </div>
         </div>
