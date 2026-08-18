@@ -7,6 +7,10 @@ import "./assets/styles/delivery-dates.css";
 import "./assets/styles/order-summary.css";
 import "./assets/styles/price-groups.css";
 import "./assets/styles/packing-options.css";
+import "./assets/styles/skeleton.css";
+import { ContactFormSkeleton } from "./components/skeletons/ContactFormSkeleton";
+import { OptionsSkeleton } from "./components/skeletons/OptionsSkeleton";
+import { PriceGroupsSkeleton } from "./components/skeletons/PriceGroupsSkeleton";
 import {
     readArtifact,
     resetArtifact,
@@ -269,13 +273,11 @@ function App() {
                         ref={stepContentRef}
                         className={`step-content step-${currentStep}`}
                     >
-                        <Suspense fallback={<p>Indlæser...</p>}>
-                            <Step
-                                step={steps.find(
-                                    (step) => step.id === currentStep,
-                                )}
-                            />
-                        </Suspense>
+                        <Step
+                            step={steps.find(
+                                (step) => step.id === currentStep,
+                            )}
+                        />
 
                         <div className="wizard-nav">
                             {currentStep > 1 && (
@@ -321,15 +323,58 @@ export default App;
 function Step({ step }) {
     switch (step.id) {
         case 1:
-            return <Step1 step={step} />;
+            return (
+                <Suspense fallback={<PriceGroupsSkeleton step={step} />}>
+                    <Step1 step={step} />
+                </Suspense>
+            );
         case 2:
-            return <Step2 step={step} />;
+            return (
+                <Suspense
+                    fallback={
+                        <OptionsSkeleton
+                            step={step}
+                            containerClassName="packing-options"
+                            lines={5}
+                        />
+                    }
+                >
+                    <Step2 step={step} />
+                </Suspense>
+            );
         case 3:
-            return <Step3 step={step} />;
+            return (
+                <Suspense
+                    fallback={
+                        <OptionsSkeleton
+                            step={step}
+                            containerClassName="delivery-methods-options"
+                            lines={3}
+                        />
+                    }
+                >
+                    <Step3 step={step} />
+                </Suspense>
+            );
         case 4:
-            return <Step4 step={step} />;
+            return (
+                <Suspense
+                    fallback={
+                        <OptionsSkeleton
+                            step={step}
+                            containerClassName="delivery-dates-options"
+                            lines={3}
+                    }
+                >
+                    <Step4 step={step} />
+                </Suspense>
+            );
         case 5:
-            return <Step5 step={step} />;
+            return (
+                <Suspense fallback={<ContactFormSkeleton step={step} />}>
+                    <Step5 step={step} />
+                </Suspense>
+            );
         case 6:
             return <Step6 step={step} />;
         default:

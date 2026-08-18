@@ -8,14 +8,19 @@ p {
 }
 
 .wizard-page {
+  width: 100%;
   max-width: 1300px;
   margin: 0 auto;
   padding: 24px;
 }
 
+/* minmax(0, ...) keeps the content column sized by the container rather than
+   by whatever is inside it, so placeholder and loaded content are the same
+   width. Plain 1fr means minmax(auto, 1fr), which floors the track at the
+   content's min-content width. */
 .wizard {
   display: grid;
-  grid-template-columns: 260px 1fr;
+  grid-template-columns: 260px minmax(0, 1fr);
   gap: 32px;
   align-items: start;
 }
@@ -110,6 +115,8 @@ p {
   gap: 6px;
   margin-bottom: 16px;
   width: 100%;
+  /* Without this the intrinsic width of the inputs sets a floor on the row. */
+  min-width: 0;
 }
 
 .input-container label {

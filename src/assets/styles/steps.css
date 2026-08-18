@@ -136,4 +136,8 @@
 /* Content (right column) */
 .step-content {
     min-height: 200px;
+    /* Grid items default to min-width: auto, which lets the column overflow its
+       track to fit its content. Pinning it to 0 keeps the step width identical
+       whether it holds a skeleton or the loaded step. */
+    min-width: 0;
 }
