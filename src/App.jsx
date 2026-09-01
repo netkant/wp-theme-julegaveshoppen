@@ -798,7 +798,7 @@ function Step6({ step }) {
         }
 
         // if x is a fixed price, return the price
-        return Number(price ?? 0) * quantity;
+        return Number(x) * Number(quantity);
     };
 
     const totalCards = rows.reduce((sum, row) => sum + row.quantity, 0);
