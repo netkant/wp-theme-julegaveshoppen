@@ -852,7 +852,7 @@ function Step6({ step }) {
                         </tr>
                     )}
                     <tr>
-                        <td>Pakkelevering</td>
+                        <td>Levering</td>
                         <td>-</td>
                         <td>-</td>
                         <td>Se note</td>
