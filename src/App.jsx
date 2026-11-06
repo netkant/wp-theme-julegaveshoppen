@@ -100,14 +100,18 @@ function App() {
         5: Boolean(
             info.email &&
             info.companyName &&
+            info.companyPhoneNumber &&
             info.cvr &&
             (info.ean ? validateNumber(info.ean) : true) &&
+            // validateEmail(info.invoiceEmail) &&
             info.contactPerson &&
             info.phoneNumber &&
             info.address &&
             info.postalCode &&
             info.city &&
             validateEmail(info.email) &&
+            // validateEmail(info.invoiceEmail) &&
+            validateNumber(info.companyPhoneNumber) &&
             validateNumber(info.phoneNumber) &&
             validateNumber(info.cvr) &&
             validateNumber(info.postalCode) &&
@@ -641,6 +645,48 @@ function Step5({ step }) {
                 />
             </div>
 
+            <div className="input-container-row">
+                <div className="input-container required">
+                    <label htmlFor="cvr">CVR</label>
+                    <input
+                        id="cvr"
+                        value={info.cvr}
+                        onChange={(e) => handleInfoChange("cvr", e.target.value)}
+                        onBlur={() => handleBlurTrim("cvr")}
+                        className={`cvr-input input-field ${info.cvr ? "has-value" : ""} ${info.cvr && !validateNumber(info.cvr) ? "invalid" : ""}`}
+                        type="text"
+                        data-1p-ignore="true"
+                        required
+                    />
+                </div>
+                <div className="input-container">
+                    <label htmlFor="ean">EAN</label>
+                    <input
+                        id="ean"
+                        value={info.ean}
+                        onChange={(e) => handleInfoChange("ean", e.target.value)}
+                        onBlur={() => handleBlurTrim("ean")}
+                        className={`ean-input input-field ${info.ean ? "has-value" : ""} ${info.ean && !validateNumber(info.ean) ? "invalid" : ""}`}
+                        type="text"
+                        data-1p-ignore="true"
+                    />
+                </div>
+            </div>
+
+            {/* <div className="input-container required">
+                <label htmlFor="invoice-email">Faktura e-mail</label>
+                <input
+                    id="invoice-email"
+                    value={info.invoiceEmail}
+                    onChange={(e) => handleInfoChange("invoiceEmail", e.target.value)}
+                    onBlur={() => handleBlurTrim("invoiceEmail")}
+                    className={`invoice-email-input input-field ${info.invoiceEmail ? "has-value" : ""} ${info.invoiceEmail && !validateEmail(info.invoiceEmail) ? "invalid" : ""}`}
+                    type="email"
+                    data-1p-ignore="true"
+                    required
+                />
+            </div> */}
+
             <div className="input-container required">
                 <label htmlFor="address">Adresse</label>
                 <input
@@ -685,36 +731,25 @@ function Step5({ step }) {
                 </div>
             </div>
 
-            <div className="input-container-row">
-                <div className="input-container required">
-                    <label htmlFor="cvr">CVR</label>
-                    <input
-                        id="cvr"
-                        value={info.cvr}
-                        onChange={(e) => handleInfoChange("cvr", e.target.value)}
-                        onBlur={() => handleBlurTrim("cvr")}
-                        className={`cvr-input input-field ${info.cvr ? "has-value" : ""} ${info.cvr && !validateNumber(info.cvr) ? "invalid" : ""}`}
-                        type="text"
-                        data-1p-ignore="true"
-                        required
-                    />
-                </div>
-                <div className="input-container">
-                    <label htmlFor="ean">EAN</label>
-                    <input
-                        id="ean"
-                        value={info.ean}
-                        onChange={(e) => handleInfoChange("ean", e.target.value)}
-                        onBlur={() => handleBlurTrim("ean")}
-                        className={`ean-input input-field ${info.ean ? "has-value" : ""} ${info.ean && !validateNumber(info.ean) ? "invalid" : ""}`}
-                        type="text"
-                        data-1p-ignore="true"
-                    />
-                </div>
+            <div className="input-container required">
+                <label htmlFor="company-phone-number">Telefonnummer</label>
+                <input
+                    id="company-phone-number"
+                    value={info.companyPhoneNumber}
+                    onChange={(e) => handleInfoChange("companyPhoneNumber", e.target.value)}
+                    onBlur={() => handleBlurTrim("companyPhoneNumber")}
+                    className={`company-phone-number-input input-field ${info.companyPhoneNumber ? "has-value" : ""} ${info.companyPhoneNumber && !validateNumber(info.companyPhoneNumber) ? "invalid" : ""}`}
+                    type="text"
+                    data-1p-ignore="true"
+                    required
+                />
             </div>
 
+            <h3>Kontaktperson</h3>
+            <p className="step-description">{step.description}</p>
+
             <div className="input-container required">
-                <label htmlFor="contact-person">Kontaktperson</label>
+                <label htmlFor="contact-person">Navn</label>
                 <input
                     id="contact-person"
                     value={info.contactPerson}
@@ -894,6 +929,10 @@ function Step6({ step }) {
                             <dt>E-mail</dt>
                             <dd>{info.email || "—"}</dd>
                         </div>
+                        {/* <div>
+                            <dt>Faktura e-mail</dt>
+                            <dd>{info.invoiceEmail || "—"}</dd>
+                        </div> */}
                         <div>
                             <dt>Firmanavn</dt>
                             <dd>{info.companyName || "—"}</dd>
@@ -921,6 +960,54 @@ function Step6({ step }) {
                         <div>
                             <dt>By</dt>
                             <dd>{info.city || "—"}</dd>
+                        </div>
+                        <div>
+                            <dt>Firmatelefon</dt>
+                            <dd>{info.companyPhoneNumber || "—"}</dd>
+                        </div>
+                    </dl>
+
+                    <h3>Kontaktperson</h3>
+                    <dl className="summary-list">
+                        <div>
+                            <dt>E-mail</dt>
+                            <dd>{info.email || "—"}</dd>
+                        </div>
+                        {/* <div>
+                            <dt>Faktura e-mail</dt>
+                            <dd>{info.invoiceEmail || "—"}</dd>
+                        </div> */}
+                        <div>
+                            <dt>Firmanavn</dt>
+                            <dd>{info.companyName || "—"}</dd>
+                        </div>
+                        <div>
+                            <dt>CVR</dt>
+                            <dd>{info.cvr || "—"}</dd>
+                        </div>
+                        <div>
+                            <dt>EAN</dt>
+                            <dd>{info.ean || "—"}</dd>
+                        </div>
+                        <div>
+                            <dt>Telefonnummer</dt>
+                            <dd>{info.phoneNumber || "—"}</dd>
+                        </div>
+                        <div>
+                            <dt>Adresse</dt>
+                            <dd>{info.address || "—"}</dd>
+                        </div>
+                        <div>
+                            <dt>Postnummer</dt>
+                            <dd>{info.postalCode || "—"}</dd>
+                        </div>
+                        <div>
+                            <dt>By</dt>
+                            <dd>{info.city || "—"}</dd>
+                        </div>
+                        <div>
+                            <dt>Firmatelefon</dt>
+                            <dd>{info.companyPhoneNumber || "—"}</dd>
                         </div>
                     </dl>
                 </div>

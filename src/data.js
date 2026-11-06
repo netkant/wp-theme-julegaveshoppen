@@ -49,8 +49,10 @@ export const infoArtifact = artifact({
     ean: "",
     phoneNumber: "",
     address: "",
+    companyPhoneNumber: "",
     postalCode: "",
     city: "",
+    // invoiceEmail: "",
     contactPerson: "",
 });
 
